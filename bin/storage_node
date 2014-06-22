@@ -1,0 +1,30 @@
+#!/bin/sh
+set -ex
+
+while getopts "i:" opt; do
+    case $opt in
+        i)
+            echo "-a was triggered!" >&2
+            intro=$OPTARG
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            ;;
+    esac
+done
+
+cd /tahoe
+
+if [ ! -d "/tahoe/.tahoe" ]; then
+    echo "Creating storage node"
+
+    if [ -z "$intro" ]; then
+        echo "Must specify introducer"
+        return
+    fi
+
+    tahoe create-node -i $intro -n docker-$HOSTNAME
+fi
+
+echo "Starting up Tahoe-LAFS storage node on $HOSTNAME"
+tahoe run

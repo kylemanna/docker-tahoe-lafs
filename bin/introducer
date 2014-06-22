@@ -1,0 +1,20 @@
+#!/bin/bash
+set -ex
+cd /tahoe
+
+if [ ! -d "/tahoe/.tahoe" ]; then
+    tahoe create-introducer $PWD
+    echo 3455 > introducer.port
+fi
+
+ip=$(dig +short @resolver1.opendns.com myip.opendns.com)
+
+# Ugly hack to wait for generation of introducer furl and echo it
+tahoe start
+while [ ! -f private/introducer.furl ]; do sleep 1; done
+cat private/introducer.furl
+tahoe stop
+
+# Need to run introducer synchronously to work well with docker
+# docker run /tahoe
+twistd -noy tahoe-introducer.tac
