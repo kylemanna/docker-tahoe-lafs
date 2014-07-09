@@ -1,15 +1,13 @@
-# Leaner build then Ubunutu
+# Leaner build then Ubuntu
 FROM debian:jessie
 
 MAINTAINER Kyle Manna <kyle@kylemanna.com>
 
-RUN apt-get update && apt-get install -y tahoe-lafs dnsutils
+RUN apt-get update && apt-get install -y tahoe-lafs dnsutils openvpn supervisor
 
 RUN mkdir /tahoe && ln -s /tahoe /.tahoe
 
-#RUN tahoe create-node
-#RUN sed -ie 's:^#tub.port.*=:tub.port = 3456:' /tahoe/tahoe.cfg
-
+ADD etc/ /etc/
 ADD bin/ /usr/local/bin/
 RUN chmod -R a+x /usr/local/bin
 
@@ -19,6 +17,9 @@ RUN chmod -R a+x /usr/local/bin
 
 WORKDIR /tahoe
 
-EXPOSE 3455 3456
-
 VOLUME ["/tahoe"]
+
+# Don't specify supervisord config file (despite security warnings) so that a
+# user can override the default by placing a config file at
+# /tahoe/supervisord.conf with custom options and still use the default CMD.
+CMD ["supervisord"]
