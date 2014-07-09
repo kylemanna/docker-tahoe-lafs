@@ -9,7 +9,7 @@ Simple Tahoe LAFS storage node
 2. Generate a certificate for each Tahoe-LAFS client.
 3. Create an empty directory (used to store presistent data) and initialize Tahoe-LAFS:
 
-        $ docker run -v $PWD:/tahoe --rm -it tahoe-dev tahoe create-node
+        $ docker run -v $PWD:/tahoe --rm -it kylemanna/tahoe-lafs tahoe create-node
         Node created in '/.tahoe'
          Please set [client]introducer.furl= in tahoe.cfg!
          The node cannot connect to a grid without it.
@@ -34,13 +34,13 @@ Simple Tahoe LAFS storage node
 
 7. Start up Tahoe-LAFS and OpenVPN (note: `--privileged` is necessary for OpenVPN to manager `tun` interfaces):
 
-        $ docker run -v $PWD:/tahoe --rm -it --privileged tahoe-dev
+        $ docker run -v $PWD:/tahoe --rm -it --privileged kylemanna/tahoe-lafs
 
 ## Quickstart for Ephermal Tahoe-LAFS Grid
 
 1. Start the docker introducer node, copy the introducer FURL (form: "pb://nodeid@172.17.0.220:3455,127.0.0.1:3455/secret")
 
-        $ docker run --rm tahoe-lafs introducer
+        $ docker run --rm kylemanna/tahoe-lafs introducer
 
 2. Create 10 storage nodes:
 
