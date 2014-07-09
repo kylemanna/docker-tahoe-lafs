@@ -3,18 +3,6 @@ docker-tahoe-lafs
 
 Simple Tahoe LAFS storage node
 
-## Approxmiate Quickstart for Ephermal Tahoe-LAFS grid
-
-1. Start the docker introducer node, copy the introducer FURL (form: "pb://nodeid@172.17.0.220:3455,127.0.0.1:3455/secret")
-
-    $ docker run --rm tahoe-lafs introducer
-
-2. Create 10 storage nodes:
-
-    $ tests/run-storage-nodes.sh -i pb://nodeid@172.17.0.220:3455,127.0.0.1:3455/secret
-
-Caveats: Uses internal docker0 bridge to communicate.
-
 ## Setup a Grid using OpenVPN to bypass NAT
 
 1. Setup a Tahoe-LAFS OpenVPN server.  I recommend looking at `kylemanna/openvpn` [Docker Trusted Build](https://registry.hub.docker.com/u/kylemanna/openvpn/).
@@ -27,8 +15,9 @@ Caveats: Uses internal docker0 bridge to communicate.
          The node cannot connect to a grid without it.
          Please set [node]nickname= in tahoe.cfg
 
-4. Configure Tahoe-LAFS, i.e. `vim tahoe.cfg`.  At minimum setup the
-   `introducer.furl` and `name`.
+4. Configure Tahoe-LAFS, i.e. `vim tahoe.cfg`.  At minimum set
+   `introducer.furl` and `name`.  Refer to [Tahoe-LAFS documentation](https://tahoe-lafs.org/trac/tahoe-lafs/browser/docs/configuration.rst)
+
 5. Install the OpenVPN client configuration file in this directory so it can be
    picked up the OpenVPN service that will run in the container, default name is
    `openvpn.conf`.  If using `kylemanna/openvpn`, this would be the output of the
@@ -46,3 +35,16 @@ Caveats: Uses internal docker0 bridge to communicate.
 7. Start up Tahoe-LAFS and OpenVPN (note: `--privileged` is necessary for OpenVPN to manager `tun` interfaces):
 
         $ docker run -v $PWD:/tahoe --rm -it --privileged tahoe-dev
+
+## Quickstart for Ephermal Tahoe-LAFS Grid
+
+1. Start the docker introducer node, copy the introducer FURL (form: "pb://nodeid@172.17.0.220:3455,127.0.0.1:3455/secret")
+
+        $ docker run --rm tahoe-lafs introducer
+
+2. Create 10 storage nodes:
+
+        $ tests/run-storage-nodes.sh -i pb://nodeid@172.17.0.220:3455,127.0.0.1:3455/secret
+
+Caveats: Uses internal docker0 bridge to communicate.
+
