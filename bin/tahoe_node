@@ -58,5 +58,8 @@ fi
 # In case Docker went down in flames
 rm -f twistd.pid
 
-echo "Starting up Tahoe-LAFS storage node on $HOSTNAME"
-tahoe run
+type="client"
+[ -r "tahoe-introducer.tac" ] && type="introducer"
+
+echo "Starting up Tahoe-LAFS $type node on $HOSTNAME"
+twistd -noy "tahoe-${type}.tac"

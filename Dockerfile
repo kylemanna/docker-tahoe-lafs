@@ -15,7 +15,7 @@ WORKDIR /tahoe
 
 VOLUME ["/tahoe"]
 
-CMD ["storage_node"]
+CMD ["tahoe_node"]
 
 #ADD etc/ /etc/
 ADD bin/ /usr/local/bin/
