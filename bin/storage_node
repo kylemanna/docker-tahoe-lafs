@@ -4,7 +4,6 @@ set -ex
 while getopts "i:" opt; do
     case $opt in
         i)
-            echo "-a was triggered!" >&2
             intro=$OPTARG
             ;;
         \?)
@@ -13,9 +12,11 @@ while getopts "i:" opt; do
     esac
 done
 
+[ -z "$OPENVPN_CONFIG" ] && OPENVPN_CONFIG="/tahoe/openvpn.conf"
+
 cd /tahoe
 
-if [ ! -d "/tahoe/.tahoe" ]; then
+if [ ! -f "/tahoe/tahoe.cfg" ]; then
     echo "Creating storage node"
 
     if [ -z "$intro" ]; then
@@ -23,8 +24,39 @@ if [ ! -d "/tahoe/.tahoe" ]; then
         return
     fi
 
-    tahoe create-node -i $intro -n docker-$HOSTNAME
+    tahoe create-node -i $intro -n docker-$HOSTNAME /tahoe
 fi
+
+if [ -r "$OPENVPN_CONFIG" ]; then
+
+    # Fail silently if already exists
+    mkdir -p /dev/net && mknod /dev/net/tun c 10 200 || true
+
+    # Run in background, rely on bash for job management
+    openvpn --config "$OPENVPN_CONFIG" --management 127.0.0.1 9999 &
+
+    # Important to wait for vpn interface to come up or tahoe-lafs appears to
+    # advertise incomplete set of IP addreses to introducer.
+
+    # Spin waiting for interface to exist signifying connection
+    timeout=30
+    for i in $(seq $timeout); do
+
+        # Break when connected
+        echo state | busybox nc 127.0.0.1 9999 | grep -q "CONNECTED,SUCCESS" && break;
+
+        # Else sleep
+        sleep 1
+    done
+
+    if [ $i -ge $timeout ]; then
+        echo "Error starting OpenVPN, i=$i, exiting."
+        exit 2;
+    fi
+fi
+
+# In case Docker went down in flames
+rm -f twistd.pid
 
 echo "Starting up Tahoe-LAFS storage node on $HOSTNAME"
 tahoe run
