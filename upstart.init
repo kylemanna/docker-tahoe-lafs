@@ -1,0 +1,8 @@
+# Copy to /etc/init/docker-tahoe.conf
+description "Docker container for Tahoe node"
+start on filesystem and started docker
+stop on runlevel [!2345]
+respawn
+script
+  exec docker run --rm -v /home/tahoe:/tahoe --cap-add=NET_ADMIN kylemanna/tahoe-lafs
+end script
