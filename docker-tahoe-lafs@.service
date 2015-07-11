@@ -1,0 +1,29 @@
+[Unit]
+Description=Tahoe-LAFS Docker Container
+Documentation=https://github.com/kylemanna/docker-tahoe-lafs
+After=network.target docker.socket
+Requires=docker.socket
+
+[Service]
+RestartSec=10
+Restart=always
+
+Environment="NAME=tahoe-lafs-%i"
+Environment="MOUNT=/home/tahoe/%i"
+Environment="IMG=kylemanna/tahoe-lafs"
+
+# To override environment variables, use local configuration directory:
+# /etc/systemd/system/docker-tahoe@foo.d/local.conf
+# http://www.freedesktop.org/software/systemd/man/systemd.unit.html
+
+# Clean-up bad state if still hanging around
+ExecStartPre=-/usr/bin/docker rm -f $NAME
+
+# Attempt to pull new image for security updates
+ExecStartPre=-/usr/bin/docker pull $IMG
+
+# Main process
+ExecStart=/usr/bin/docker run --rm --cap-add=NET_ADMIN -v ${MOUNT}:/tahoe --name ${NAME} ${IMG} tahoe_node
+
+[Install]
+WantedBy=multi-user.target
